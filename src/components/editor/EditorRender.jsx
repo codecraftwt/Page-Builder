@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Plus, AlignLeft, AlignCenter, AlignRight, AlignJustify } from 'lucide-react';
 
 const Input = ({ label, value, onChange, type = "text", placeholder, max }) => (
   <div className="mb-4">
@@ -31,15 +32,82 @@ const ColorInput = ({ label, value, onChange }) => (
         type="color"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-12 h-10 cursor-pointer"
+        className="w-12 h-10 cursor-pointer rounded"
       />
       <input
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="flex-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="flex-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         placeholder="#000000"
       />
+    </div>
+  </div>
+);
+
+const SliderInput = ({ label, value, onChange, min = 0, max = 100, step = 1, unit = "px" }) => {
+  const [inputVal, setInputVal] = useState(value);
+  const handleSlider = (e) => {
+    const val = e.target.value;
+    setInputVal(val);
+    onChange(val + unit);
+  };
+  const handleInput = (e) => {
+    const val = e.target.value.replace(/[^0-9.]/g, '');
+    setInputVal(val);
+    if (val && !isNaN(val)) {
+      const num = Math.min(max, Math.max(min, parseFloat(val)));
+      onChange(num + unit);
+    }
+  };
+  return (
+    <div className="mb-4">
+      <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
+      <div className="flex items-center gap-3">
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={parseFloat(value) || min}
+          onChange={handleSlider}
+          className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+        />
+        <input
+          type="text"
+          value={inputVal}
+          onChange={handleInput}
+          onBlur={() => setInputVal(parseFloat(value) || min)}
+          className="w-16 px-2 py-1 text-sm text-center border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <span className="text-xs text-gray-500">{unit}</span>
+      </div>
+    </div>
+  );
+};
+
+const IconSelect = ({ label, value, onChange, options }) => (
+  <div className="mb-4">
+    <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
+    <div className="flex gap-2 justify-between bg-gray-50 p-1 rounded-md">
+      {options.map((opt) => {
+        const Icon = opt.icon;
+        return (
+          <button
+            key={opt.value}
+            onClick={() => onChange(opt.value)}
+            className={`flex-1 p-3 rounded transition-all flex items-center justify-center gap-1 text-sm font-medium
+              ${value === opt.value
+                ? 'bg-white text-blue-600 shadow-sm ring-1 ring-blue-500'
+                : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            title={opt.label}
+          >
+            <Icon size={16} />
+            <span className="hidden sm:inline">{opt.label}</span>
+          </button>
+        );
+      })}
     </div>
   </div>
 );
@@ -67,10 +135,12 @@ const Section = ({ title, children, defaultOpen = false }) => {
     <div className="border border-gray-200 rounded-md mb-4 overflow-hidden">
       <button
         onClick={() => setOpen(!open)}
-        className="w-full px-4 py-2 bg-gray-50 hover:bg-gray-100 text-left font-medium flex justify-between items-center"
+        className="w-full px-4 py-2 bg-gray-50 hover:bg-gray-100 text-left font-medium flex justify-between items-center transition"
       >
         {title}
-        <span className={`transform transition ${open ? "rotate-180" : ""}`}>▼</span>
+        <span className={`transform transition-transform duration-200 ${open ? 'rotate-45' : ''}`}>
+          <Plus size={18} />
+        </span>
       </button>
       {open && <div className="p-4 bg-white">{children}</div>}
     </div>
@@ -123,9 +193,11 @@ export default function SimpleEditor({ data, setData }) {
     { value: "Courier New, monospace", label: "Courier New" },
   ];
 
-  const layoutOptions = [
-    { value: "single", label: "Single Column" },
-    { value: "grid", label: "Grid Layout" },
+  const alignmentOptions = [
+    { value: "left", label: "Left", icon: AlignLeft },
+    { value: "center", label: "Center", icon: AlignCenter },
+    { value: "right", label: "Right", icon: AlignRight },
+    { value: "justify", label: "Justify", icon: AlignJustify },
   ];
 
   return (
@@ -138,7 +210,6 @@ export default function SimpleEditor({ data, setData }) {
         <Input label="Salary Range" value={data.salary} onChange={(v) => update("salary", v)} />
         <Input label="Email" value={data.email || ""} onChange={(v) => update("email", v)} type="email" />
         <Input label="Phone" value={data.phone || ""} onChange={(v) => update("phone", v)} />
-
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">Hero Image</label>
           <input
@@ -159,15 +230,90 @@ export default function SimpleEditor({ data, setData }) {
 
       <Section title="Design & Styling" defaultOpen={true}>
         <Select label="Font Family" value={data.fontFamily || "Arial, sans-serif"} onChange={(v) => update("fontFamily", v)} options={fontOptions} />
-        {/* <Select label="Layout" value={data.layout || "single"} onChange={(v) => update("layout", v)} options={layoutOptions} /> */}
-
         <div className="grid grid-cols-2 gap-3">
           <ColorInput label="Primary" value={data.colors?.primary || "#3b82f6"} onChange={(v) => update("colors", { ...data.colors, primary: v })} />
           <ColorInput label="Secondary" value={data.colors?.secondary || "#6b7280"} onChange={(v) => update("colors", { ...data.colors, secondary: v })} />
           <ColorInput label="Tertiary" value={data.colors?.tertiary || "#9ca3af"} onChange={(v) => update("colors", { ...data.colors, tertiary: v })} />
           <ColorInput label="Background" value={data.colors?.bg || "#ffffff"} onChange={(v) => update("colors", { ...data.colors, bg: v })} />
+          <ColorInput label="Text Color" value={data.colors?.text || "#1f2937"} onChange={(v) => update("colors", { ...data.colors, text: v })} />
+          <ColorInput label="Heading Color" value={data.colors?.heading || "#1f2937"} onChange={(v) => update("colors", { ...data.colors, heading: v })} />
         </div>
 
+        <div className="grid grid-cols-2 gap-4">
+          <SliderInput
+            label="Title Font Size"
+            value={parseFloat(data.titleFontSize) || 48}
+            onChange={(v) => update("titleFontSize", v)}
+            min={24}
+            max={72}
+            unit="px"
+          />
+          <SliderInput
+            label="Description Font Size"
+            value={parseFloat(data.descriptionFontSize) || 20}
+            onChange={(v) => update("descriptionFontSize", v)}
+            min={12}
+            max={32}
+            unit="px"
+          />
+          <SliderInput
+            label="Heading Font Size"
+            value={parseFloat(data.headingFontSize) || 32}
+            onChange={(v) => update("headingFontSize", v)}
+            min={16}
+            max={48}
+            unit="px"
+          />
+          <SliderInput
+            label="Body Font Size"
+            value={parseFloat(data.bodyFontSize) || 16}
+            onChange={(v) => update("bodyFontSize", v)}
+            min={12}
+            max={24}
+            unit="px"
+          />
+          <SliderInput
+            label="Button Border Radius"
+            value={parseFloat(data.buttonBorderRadius) || 8}
+            onChange={(v) => update("buttonBorderRadius", v)}
+            min={0}
+            max={32}
+            unit="px"
+          />
+          <SliderInput
+            label="Card Border Radius"
+            value={parseFloat(data.cardBorderRadius) || 8}
+            onChange={(v) => update("cardBorderRadius", v)}
+            min={0}
+            max={32}
+            unit="px"
+          />
+        </div>
+
+        <IconSelect
+          label="Text Alignment"
+          value={data.textAlign || "center"}
+          onChange={(v) => update("textAlign", v)}
+          options={alignmentOptions}
+        />
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Background Gradient</label>
+          <div className="flex items-center gap-2 mb-2">
+            <input
+              type="checkbox"
+              checked={data.bgGradientEnabled || false}
+              onChange={(e) => update("bgGradientEnabled", e.target.checked)}
+            />
+            <span className="text-sm">Enable Gradient</span>
+          </div>
+          {data.bgGradientEnabled && (
+            <div className="grid grid-cols-2 gap-3">
+              <ColorInput label="Gradient Start" value={data.bgGradientStart || "#ffffff"} onChange={(v) => update("bgGradientStart", v)} />
+              <ColorInput label="Gradient End" value={data.bgGradientEnd || "#f8fafc"} onChange={(v) => update("bgGradientEnd", v)} />
+            </div>
+          )}
+        </div>
       </Section>
 
       <Section title="Features">
@@ -188,43 +334,6 @@ export default function SimpleEditor({ data, setData }) {
         </button>
       </Section>
 
-      {/* <Section title="Services">
-        {(data.services || []).map((s, i) => (
-          <ListItem
-            key={i}
-            item={s}
-            onUpdate={(field, v) => updateNested("services", i, field, v)}
-            onRemove={() => removeItem("services", i)}
-            fields={[
-              { key: "title", label: "Service Title" },
-              { key: "description", label: "Description", type: "textarea" },
-            ]}
-          />
-        ))}
-        <button onClick={() => addItem("services", { title: "", description: "" })} className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-          + Add Service
-        </button>
-      </Section>
-
-      <Section title="Team Members">
-        {(data.team || []).map((m, i) => (
-          <ListItem
-            key={i}
-            item={m}
-            onUpdate={(field, v) => updateNested("team", i, field, v)}
-            onRemove={() => removeItem("team", i)}
-            fields={[
-              { key: "name", label: "Name" },
-              { key: "role", label: "Role" },
-              { key: "bio", label: "Bio", type: "textarea" },
-            ]}
-          />
-        ))}
-        <button onClick={() => addItem("team", { name: "", role: "", bio: "" })} className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-          + Add Member
-        </button>
-      </Section> */}
-
       <Section title="Testimonials">
         {(data.testimonials || []).map((t, i) => (
           <ListItem
@@ -243,30 +352,6 @@ export default function SimpleEditor({ data, setData }) {
           + Add Testimonial
         </button>
       </Section>
-
-      {/* <Section title="FAQ">
-        {(data.faq || []).map((q, i) => (
-          <ListItem
-            key={i}
-            item={q}
-            onUpdate={(field, v) => updateNested("faq", i, field, v)}
-            onRemove={() => removeItem("faq", i)}
-            fields={[
-              { key: "question", label: "Question" },
-              { key: "answer", label: "Answer", type: "textarea" },
-            ]}
-          />
-        ))}
-        <button onClick={() => addItem("faq", { question: "", answer: "" })} className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-          + Add FAQ
-        </button>
-      </Section>
-
-      <Section title="Social Links">
-        <Input label="LinkedIn" value={data.socialLinks?.linkedin || ""} onChange={(v) => update("socialLinks", { ...data.socialLinks, linkedin: v })} />
-        <Input label="Twitter" value={data.socialLinks?.twitter || ""} onChange={(v) => update("socialLinks", { ...data.socialLinks, twitter: v })} />
-        <Input label="GitHub" value={data.socialLinks?.github || ""} onChange={(v) => update("socialLinks", { ...data.socialLinks, github: v })} />
-      </Section> */}
     </div>
   );
 }
