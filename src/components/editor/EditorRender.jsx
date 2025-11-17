@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { Plus, AlignLeft, AlignCenter, AlignRight, AlignJustify, Settings } from 'lucide-react';
-import StyleEditorModal from './StyleEditorModal';
 
 const Input = ({ label, value, onChange, type = "text", placeholder, max }) => (
   <div className="mb-4">
@@ -389,13 +387,29 @@ export default function SimpleEditor({ data, setData }) {
         </button>
       </Section>
 
-      <StyleEditorModal
-        isOpen={styleModal.isOpen}
-        onClose={closeStyleModal}
-        fieldType={styleModal.fieldType}
-        styles={data[`${styleModal.fieldType}Styles`] || {}}
-        onUpdateStyles={updateStyles}
-      />
+      {/* <Section title="FAQ">
+        {(data.faq || []).map((q, i) => (
+          <ListItem
+            key={i}
+            item={q}
+            onUpdate={(field, v) => updateNested("faq", i, field, v)}
+            onRemove={() => removeItem("faq", i)}
+            fields={[
+              { key: "question", label: "Question" },
+              { key: "answer", label: "Answer", type: "textarea" },
+            ]}
+          />
+        ))}
+        <button onClick={() => addItem("faq", { question: "", answer: "" })} className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+          + Add FAQ
+        </button>
+      </Section>
+
+      <Section title="Social Links">
+        <Input label="LinkedIn" value={data.socialLinks?.linkedin || ""} onChange={(v) => update("socialLinks", { ...data.socialLinks, linkedin: v })} />
+        <Input label="Twitter" value={data.socialLinks?.twitter || ""} onChange={(v) => update("socialLinks", { ...data.socialLinks, twitter: v })} />
+        <Input label="GitHub" value={data.socialLinks?.github || ""} onChange={(v) => update("socialLinks", { ...data.socialLinks, github: v })} />
+      </Section> */}
     </div>
   );
 }

@@ -69,7 +69,11 @@ export default function EditPage() {
         throw new Error('Failed to fetch page data');
       }
       const result = await response.json();
-      setData(result.data);
+      if (result.data) {
+        setData(result.data);
+      } else {
+        setData(DEFAULT_DATA);
+      }
       setError(null);
     } catch (err) {
       console.error('Error fetching page data:', err);
