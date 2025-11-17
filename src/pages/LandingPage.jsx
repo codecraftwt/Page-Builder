@@ -172,6 +172,17 @@ export default function LandingPage({ data, viewMode = "desktop" }) {
             src={data.heroImage}
             alt="Hero"
             className="w-full h-full object-cover"
+            style={{
+              width: data.heroImageStyles?.width || "100%",
+              height: data.heroImageStyles?.height || "500px",
+              borderRadius: data.heroImageStyles?.borderRadius || "0px",
+              objectFit: data.heroImageStyles?.objectFit || "cover",
+              borderWidth: data.heroImageStyles?.borderWidth || "0px",
+              borderColor: data.heroImageStyles?.borderColor || "#000000",
+              borderStyle: data.heroImageStyles?.borderStyle || "solid",
+              boxShadow: data.heroImageStyles?.boxShadow || "none",
+              opacity: data.heroImageStyles?.opacity || 1
+            }}
           />
         ) : (
           <div className="bg-gradient-to-br from-blue-500 to-purple-600 w-full h-full" />
@@ -181,8 +192,15 @@ export default function LandingPage({ data, viewMode = "desktop" }) {
             <h1
               className="text-3xl md:text-5xl font-bold text-white mb-4"
               style={{
-                fontSize: data.titleFontSize || "3rem",
-                textAlign: data.textAlign || "center",
+                fontSize: data.titleStyles?.fontSize || data.titleFontSize || "3rem",
+                textAlign: data.titleStyles?.textAlign || data.textAlign || "center",
+                color: data.titleStyles?.color || "#ffffff",
+                fontWeight: data.titleStyles?.fontWeight || "bold",
+                fontFamily: data.titleStyles?.fontFamily || data.fontFamily || "system-ui, -apple-system, sans-serif",
+                textDecoration: data.titleStyles?.textDecoration || "none",
+                fontStyle: data.titleStyles?.fontStyle || "normal",
+                lineHeight: data.titleStyles?.lineHeight || "1.2",
+                letterSpacing: data.titleStyles?.letterSpacing || "0px"
               }}
             >
               {data.title || "Welcome to Our Platform"}

@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Plus, AlignLeft, AlignCenter, AlignRight, AlignJustify } from 'lucide-react';
+import { Plus, AlignLeft, AlignCenter, AlignRight, AlignJustify, Settings } from 'lucide-react';
+import StyleEditorModal from './StyleEditorModal';
 
 const Input = ({ label, value, onChange, type = "text", placeholder, max }) => (
   <div className="mb-4">
@@ -169,6 +170,8 @@ const ListItem = ({ item, onUpdate, onRemove, fields }) => (
 );
 
 export default function SimpleEditor({ data, setData }) {
+  const [styleModal, setStyleModal] = useState({ isOpen: false, fieldType: null });
+
   const update = (key, value) =>
     setData((prev) => ({ ...prev, [key]: value }));
 
@@ -183,6 +186,20 @@ export default function SimpleEditor({ data, setData }) {
 
   const removeItem = (key, index) =>
     update(key, data[key].filter((_, i) => i !== index));
+
+  const openStyleModal = (fieldType) => {
+    setStyleModal({ isOpen: true, fieldType });
+  };
+
+  const closeStyleModal = () => {
+    setStyleModal({ isOpen: false, fieldType: null });
+  };
+
+  const updateStyles = (fieldType, newStyles) => {
+    update(`${fieldType}Styles`, newStyles);
+  };
+
+  // const blurBackground = styleModal.isOpen ? "filter blur-sm pointer-events-none" : "";
 
   const fontOptions = [
     { value: "Arial, sans-serif", label: "Arial" },
@@ -201,9 +218,19 @@ export default function SimpleEditor({ data, setData }) {
   ];
 
   return (
-    <div className="max-w-2xl mx-auto p-4 space-y-6 font-sans">
+    <div className={`max-w-2xl mx-auto p-4 space-y-6 font-sans`}>
       <Section title="Basic Content" defaultOpen={true}>
-        <Input label="Page Title" value={data.title} onChange={(v) => update("title", v)} max={80} />
+        <div className="flex items-center justify-between mb-2">
+          <label className="block text-sm font-medium text-gray-700">Page Title</label>
+          <button
+            onClick={() => openStyleModal("title")}
+            className="p-1 text-gray-500 hover:text-blue-600 transition"
+            title="Style Title"
+          >
+            <Settings size={16} />
+          </button>
+        </div>
+        <Input label="" value={data.title} onChange={(v) => update("title", v)} max={80} />
         <Input label="Description" value={data.description} onChange={(v) => update("description", v)} type="textarea" max={500} />
         <Input label="Company Name" value={data.company} onChange={(v) => update("company", v)} />
         <Input label="Location" value={data.location} onChange={(v) => update("location", v)} />
@@ -211,7 +238,16 @@ export default function SimpleEditor({ data, setData }) {
         <Input label="Email" value={data.email || ""} onChange={(v) => update("email", v)} type="email" />
         <Input label="Phone" value={data.phone || ""} onChange={(v) => update("phone", v)} />
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Hero Image</label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-sm font-medium text-gray-700">Hero Image</label>
+            <button
+              onClick={() => openStyleModal("heroImage")}
+              className="p-1 text-gray-500 hover:text-blue-600 transition"
+              title="Style Hero Image"
+            >
+              <Settings size={16} />
+            </button>
+          </div>
           <input
             type="file"
             accept="image/*"
@@ -352,6 +388,14 @@ export default function SimpleEditor({ data, setData }) {
           + Add Testimonial
         </button>
       </Section>
+
+      <StyleEditorModal
+        isOpen={styleModal.isOpen}
+        onClose={closeStyleModal}
+        fieldType={styleModal.fieldType}
+        styles={data[`${styleModal.fieldType}Styles`] || {}}
+        onUpdateStyles={updateStyles}
+      />
     </div>
   );
 }

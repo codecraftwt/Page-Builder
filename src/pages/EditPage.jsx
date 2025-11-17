@@ -14,6 +14,28 @@ const DEFAULT_DATA = {
   phone: "",
   heroImage: "",
   colors: { primary: "#3b82f6", bg: "#f9fafb" },
+  titleStyles: {
+    color: "#ffffff",
+    fontSize: "48px",
+    fontWeight: "bold",
+    textAlign: "center",
+    fontFamily: "Arial, sans-serif",
+    textDecoration: "none",
+    fontStyle: "normal",
+    lineHeight: "1.2",
+    letterSpacing: "0px"
+  },
+  heroImageStyles: {
+    width: "100%",
+    height: "500px",
+    borderRadius: "0px",
+    objectFit: "cover",
+    borderWidth: "0px",
+    borderColor: "#000000",
+    borderStyle: "solid",
+    boxShadow: "none",
+    opacity: "1"
+  },
   testimonials: [
     { name: "", role: "", comment: "" }
   ]
