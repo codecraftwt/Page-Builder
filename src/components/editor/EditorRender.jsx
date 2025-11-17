@@ -230,12 +230,72 @@ export default function EditorRender({ data, setData, styleModal, setStyleModal 
           </button>
         </div>
         <Input label="" value={data.title} onChange={(v) => update("title", v)} max={80} />
-        <Input label="Description" value={data.description} onChange={(v) => update("description", v)} type="textarea" max={500} />
-        <Input label="Company Name" value={data.company} onChange={(v) => update("company", v)} />
-        <Input label="Location" value={data.location} onChange={(v) => update("location", v)} />
-        <Input label="Salary Range" value={data.salary} onChange={(v) => update("salary", v)} />
-        <Input label="Email" value={data.email || ""} onChange={(v) => update("email", v)} type="email" />
-        <Input label="Phone" value={data.phone || ""} onChange={(v) => update("phone", v)} />
+        <div className="flex items-center justify-between mb-2">
+          <label className="block text-sm font-medium text-gray-700">Description</label>
+          <button
+            onClick={() => openStyleModal("description")}
+            className="p-1 text-gray-500 hover:text-blue-600 transition"
+            title="Style Description"
+          >
+            <Settings size={16} />
+          </button>
+        </div>
+        <Input label="" value={data.description} onChange={(v) => update("description", v)} type="textarea" max={500} />
+        <div className="flex items-center justify-between mb-2">
+          <label className="block text-sm font-medium text-gray-700">Company Name</label>
+          <button
+            onClick={() => openStyleModal("company")}
+            className="p-1 text-gray-500 hover:text-blue-600 transition"
+            title="Style Company Name"
+          >
+            <Settings size={16} />
+          </button>
+        </div>
+        <Input label="" value={data.company} onChange={(v) => update("company", v)} />
+        <div className="flex items-center justify-between mb-2">
+          <label className="block text-sm font-medium text-gray-700">Location</label>
+          <button
+            onClick={() => openStyleModal("location")}
+            className="p-1 text-gray-500 hover:text-blue-600 transition"
+            title="Style Location"
+          >
+            <Settings size={16} />
+          </button>
+        </div>
+        <Input label="" value={data.location} onChange={(v) => update("location", v)} />
+        <div className="flex items-center justify-between mb-2">
+          <label className="block text-sm font-medium text-gray-700">Salary Range</label>
+          <button
+            onClick={() => openStyleModal("salary")}
+            className="p-1 text-gray-500 hover:text-blue-600 transition"
+            title="Style Salary Range"
+          >
+            <Settings size={16} />
+          </button>
+        </div>
+        <Input label="" value={data.salary} onChange={(v) => update("salary", v)} />
+        <div className="flex items-center justify-between mb-2">
+          <label className="block text-sm font-medium text-gray-700">Email</label>
+          <button
+            onClick={() => openStyleModal("email")}
+            className="p-1 text-gray-500 hover:text-blue-600 transition"
+            title="Style Email"
+          >
+            <Settings size={16} />
+          </button>
+        </div>
+        <Input label="" value={data.email || ""} onChange={(v) => update("email", v)} type="email" />
+        <div className="flex items-center justify-between mb-2">
+          <label className="block text-sm font-medium text-gray-700">Phone</label>
+          <button
+            onClick={() => openStyleModal("phone")}
+            className="p-1 text-gray-500 hover:text-blue-600 transition"
+            title="Style Phone"
+          >
+            <Settings size={16} />
+          </button>
+        </div>
+        <Input label="" value={data.phone || ""} onChange={(v) => update("phone", v)} />
         <div className="mb-4">
           <div className="flex items-center justify-between mb-1">
             <label className="block text-sm font-medium text-gray-700">Hero Image</label>

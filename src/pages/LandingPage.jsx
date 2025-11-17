@@ -208,8 +208,15 @@ export default function LandingPage({ data, viewMode = "desktop" }) {
             <p
               className="text-lg md:text-xl text-gray-200 mb-8 max-w-2xl mx-auto"
               style={{
-                fontSize: data.descriptionFontSize || "1.25rem",
-                textAlign: data.textAlign || "center",
+                fontSize: data.descriptionStyles?.fontSize || data.descriptionFontSize || "1.25rem",
+                textAlign: data.descriptionStyles?.textAlign || data.textAlign || "center",
+                color: data.descriptionStyles?.color || "#e5e7eb",
+                fontWeight: data.descriptionStyles?.fontWeight || "normal",
+                fontFamily: data.descriptionStyles?.fontFamily || data.fontFamily || "system-ui, -apple-system, sans-serif",
+                textDecoration: data.descriptionStyles?.textDecoration || "none",
+                fontStyle: data.descriptionStyles?.fontStyle || "normal",
+                lineHeight: data.descriptionStyles?.lineHeight || "1.5",
+                letterSpacing: data.descriptionStyles?.letterSpacing || "0px"
               }}
             >
               {data.description ||
@@ -260,10 +267,44 @@ export default function LandingPage({ data, viewMode = "desktop" }) {
               {data.title || "Senior Frontend Engineer"}
             </h3>
             <p className="text-gray-600 mb-3">
-              {data.company} • {data.location || "Remote"} • Full-time
+              <span style={{
+                color: data.companyStyles?.color || "#1f2937",
+                fontSize: data.companyStyles?.fontSize || "16px",
+                fontWeight: data.companyStyles?.fontWeight || "bold",
+                fontFamily: data.companyStyles?.fontFamily || "system-ui, -apple-system, sans-serif",
+                textDecoration: data.companyStyles?.textDecoration || "none",
+                fontStyle: data.companyStyles?.fontStyle || "normal",
+                lineHeight: data.companyStyles?.lineHeight || "1.2",
+                letterSpacing: data.companyStyles?.letterSpacing || "0px"
+              }}>
+                {data.company}
+              </span>
+              {' • '}
+              <span style={{
+                color: data.locationStyles?.color || "#6b7280",
+                fontSize: data.locationStyles?.fontSize || "16px",
+                fontWeight: data.locationStyles?.fontWeight || "normal",
+                fontFamily: data.locationStyles?.fontFamily || "system-ui, -apple-system, sans-serif",
+                textDecoration: data.locationStyles?.textDecoration || "none",
+                fontStyle: data.locationStyles?.fontStyle || "normal",
+                lineHeight: data.locationStyles?.lineHeight || "1.4",
+                letterSpacing: data.locationStyles?.letterSpacing || "0px"
+              }}>
+                {data.location || "Remote"}
+              </span>
+              {' • Full-time'}
             </p>
             {data.salary && (
-              <p className="text-lg font-semibold text-green-600 mb-4">
+              <p className="text-lg font-semibold text-green-600 mb-4" style={{
+                color: data.salaryStyles?.color || "#16a34a",
+                fontSize: data.salaryStyles?.fontSize || "18px",
+                fontWeight: data.salaryStyles?.fontWeight || "bold",
+                fontFamily: data.salaryStyles?.fontFamily || "system-ui, -apple-system, sans-serif",
+                textDecoration: data.salaryStyles?.textDecoration || "none",
+                fontStyle: data.salaryStyles?.fontStyle || "normal",
+                lineHeight: data.salaryStyles?.lineHeight || "1.2",
+                letterSpacing: data.salaryStyles?.letterSpacing || "0px"
+              }}>
                 {data.salary}
               </p>
             )}
@@ -532,9 +573,42 @@ export default function LandingPage({ data, viewMode = "desktop" }) {
 
             <div>
               <h4 className="text-white font-semibold mb-3">Contact</h4>
-              <p className="text-sm">{data.location || "123 Business Ave, City"}</p>
-              <p className="text-sm">Phone: {data.phone || "(555) 000-1234"}</p>
-              <p className="text-sm">Email: {data.email || "hello@company.com"}</p>
+              <p className="text-sm" style={{
+                color: data.locationStyles?.color || "#d1d5db",
+                fontSize: data.locationStyles?.fontSize || "14px",
+                fontWeight: data.locationStyles?.fontWeight || "normal",
+                fontFamily: data.locationStyles?.fontFamily || "system-ui, -apple-system, sans-serif",
+                textDecoration: data.locationStyles?.textDecoration || "none",
+                fontStyle: data.locationStyles?.fontStyle || "normal",
+                lineHeight: data.locationStyles?.lineHeight || "1.4",
+                letterSpacing: data.locationStyles?.letterSpacing || "0px"
+              }}>
+                {data.location || "123 Business Ave, City"}
+              </p>
+              <p className="text-sm" style={{
+                color: data.phoneStyles?.color || "#d1d5db",
+                fontSize: data.phoneStyles?.fontSize || "14px",
+                fontWeight: data.phoneStyles?.fontWeight || "normal",
+                fontFamily: data.phoneStyles?.fontFamily || "system-ui, -apple-system, sans-serif",
+                textDecoration: data.phoneStyles?.textDecoration || "none",
+                fontStyle: data.phoneStyles?.fontStyle || "normal",
+                lineHeight: data.phoneStyles?.lineHeight || "1.4",
+                letterSpacing: data.phoneStyles?.letterSpacing || "0px"
+              }}>
+                Phone: {data.phone || "(555) 000-1234"}
+              </p>
+              <p className="text-sm" style={{
+                color: data.emailStyles?.color || "#d1d5db",
+                fontSize: data.emailStyles?.fontSize || "14px",
+                fontWeight: data.emailStyles?.fontWeight || "normal",
+                fontFamily: data.emailStyles?.fontFamily || "system-ui, -apple-system, sans-serif",
+                textDecoration: data.emailStyles?.textDecoration || "underline",
+                fontStyle: data.emailStyles?.fontStyle || "normal",
+                lineHeight: data.emailStyles?.lineHeight || "1.4",
+                letterSpacing: data.emailStyles?.letterSpacing || "0px"
+              }}>
+                Email: {data.email || "hello@company.com"}
+              </p>
             </div>
           </div>
 

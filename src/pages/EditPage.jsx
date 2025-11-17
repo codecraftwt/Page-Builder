@@ -6,6 +6,7 @@ import LandingPage from "./LandingPage";
 import StyleEditorModal from "../components/editor/StyleEditorModal";
 
 const DEFAULT_DATA = {
+  pageId: "",
   title: "New Page",
   description: "Describe your page here...",
   company: "Your Company",
@@ -14,16 +15,90 @@ const DEFAULT_DATA = {
   email: "",
   phone: "",
   heroImage: "",
-  colors: { primary: "#3b82f6", bg: "#f9fafb" },
+  fontFamily: "",
+  colors: {
+    primary: "#3b82f6",
+    secondary: "#6b7280",
+    tertiary: "#9ca3af",
+    bg: "#ffffff",
+    text: "#1f2937",
+    heading: "#1f2937"
+  },
   titleStyles: {
     color: "#ffffff",
     fontSize: "48px",
-    fontWeight: "bold",
-    textAlign: "center",
     fontFamily: "Arial, sans-serif",
-    textDecoration: "none",
+    fontWeight: "bold",
     fontStyle: "normal",
+    textDecoration: "none",
+    textAlign: "center",
     lineHeight: "1.2",
+    letterSpacing: "0px"
+  },
+  descriptionStyles: {
+    color: "#1f2937",
+    fontSize: "20px",
+    fontFamily: "Arial, sans-serif",
+    fontWeight: "normal",
+    fontStyle: "normal",
+    textDecoration: "none",
+    textAlign: "center",
+    lineHeight: "1.5",
+    letterSpacing: "0px"
+  },
+  companyStyles: {
+    color: "#1f2937",
+    fontSize: "24px",
+    fontFamily: "Arial, sans-serif",
+    fontWeight: "bold",
+    fontStyle: "normal",
+    textDecoration: "none",
+    textAlign: "center",
+    lineHeight: "1.2",
+    letterSpacing: "0px"
+  },
+  locationStyles: {
+    color: "#6b7280",
+    fontSize: "16px",
+    fontFamily: "Arial, sans-serif",
+    fontWeight: "normal",
+    fontStyle: "normal",
+    textDecoration: "none",
+    textAlign: "center",
+    lineHeight: "1.4",
+    letterSpacing: "0px"
+  },
+  salaryStyles: {
+    color: "#1f2937",
+    fontSize: "18px",
+    fontFamily: "Arial, sans-serif",
+    fontWeight: "bold",
+    fontStyle: "normal",
+    textDecoration: "none",
+    textAlign: "center",
+    lineHeight: "1.2",
+    letterSpacing: "0px"
+  },
+  emailStyles: {
+    color: "#3b82f6",
+    fontSize: "16px",
+    fontFamily: "Arial, sans-serif",
+    fontWeight: "normal",
+    fontStyle: "normal",
+    textDecoration: "underline",
+    textAlign: "center",
+    lineHeight: "1.4",
+    letterSpacing: "0px"
+  },
+  phoneStyles: {
+    color: "#1f2937",
+    fontSize: "16px",
+    fontFamily: "Arial, sans-serif",
+    fontWeight: "normal",
+    fontStyle: "normal",
+    textDecoration: "none",
+    textAlign: "center",
+    lineHeight: "1.4",
     letterSpacing: "0px"
   },
   heroImageStyles: {
@@ -37,9 +112,29 @@ const DEFAULT_DATA = {
     boxShadow: "none",
     opacity: "1"
   },
-  testimonials: [
-    { name: "", role: "", comment: "" }
-  ]
+  titleFontSize: "48px",
+  descriptionFontSize: "20px",
+  headingFontSize: "32px",
+  bodyFontSize: "16px",
+  buttonBorderRadius: "8px",
+  cardBorderRadius: "8px",
+  textAlign: "center",
+  bgGradientEnabled: false,
+  bgGradientStart: "#ffffff",
+  bgGradientEnd: "#f8fafc",
+  sections: [],
+  features: [],
+  testimonials: [],
+  services: [],
+  team: [],
+  faq: [],
+  socialLinks: {
+    linkedin: "",
+    twitter: "",
+    github: ""
+  },
+  createdAt: new Date(),
+  updatedAt: new Date()
 };
 
 const API_BASE_URL = 'http://localhost:5000/api';
@@ -72,7 +167,7 @@ export default function EditPage() {
       }
       const result = await response.json();
       if (result.data) {
-        setData(result.data);
+        setData({ ...DEFAULT_DATA, ...result.data });
       } else {
         setData(DEFAULT_DATA);
       }
@@ -139,14 +234,12 @@ export default function EditPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+      <div className="flex flex-col items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
         <p className="text-gray-600">Loading page data...</p>
       </div>
     );
   }
-
-
 
   return (
     <div className="relative h-screen bg-gray-100">

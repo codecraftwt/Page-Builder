@@ -226,6 +226,17 @@ const borderStyleOptions = [
   { value: "none", label: "None" },
 ];
 
+const fieldNames = {
+  title: "Page Title",
+  description: "Description",
+  company: "Company Name",
+  location: "Location",
+  salary: "Salary Range",
+  email: "Email",
+  phone: "Phone",
+  heroImage: "Hero Image"
+};
+
 export default function StyleEditorModal({ isOpen, onClose, fieldType, styles, onUpdateStyles }) {
   if (!isOpen) return null;
 
@@ -270,14 +281,14 @@ export default function StyleEditorModal({ isOpen, onClose, fieldType, styles, o
         <div className="flex flex-col h-full">
           <div className="flex justify-between items-center p-6 border-b">
             <h2 className="text-xl font-bold text-gray-800">
-              {fieldType === "title" ? " Page Title Styles" : "Hero Image Styles"}
+              {fieldNames[fieldType] || fieldType} Styles
             </h2>
             <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
               <X size={24} />
             </button>
           </div>
           <div className="flex-1 p-6 overflow-y-auto">
-            {fieldType === "title" ? renderTextStyles() : renderImageStyles()}
+            {fieldType === "heroImage" ? renderImageStyles() : renderTextStyles()}
           </div>
           <div className="flex justify-end gap-3 p-6 border-t bg-gray-50">
             <button
