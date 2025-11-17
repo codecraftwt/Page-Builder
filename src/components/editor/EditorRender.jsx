@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Plus, Settings, AlignLeft, AlignCenter, AlignRight, AlignJustify } from "lucide-react";
+import StyleEditorModal from './StyleEditorModal';
 
 const Input = ({ label, value, onChange, type = "text", placeholder, max }) => (
   <div className="mb-4">
@@ -167,8 +169,7 @@ const ListItem = ({ item, onUpdate, onRemove, fields }) => (
   </div>
 );
 
-export default function SimpleEditor({ data, setData }) {
-  const [styleModal, setStyleModal] = useState({ isOpen: false, fieldType: null });
+export default function EditorRender({ data, setData, styleModal, setStyleModal }) {
 
   const update = (key, value) =>
     setData((prev) => ({ ...prev, [key]: value }));
@@ -197,7 +198,7 @@ export default function SimpleEditor({ data, setData }) {
     update(`${fieldType}Styles`, newStyles);
   };
 
-  // const blurBackground = styleModal.isOpen ? "filter blur-sm pointer-events-none" : "";
+
 
   const fontOptions = [
     { value: "Arial, sans-serif", label: "Arial" },

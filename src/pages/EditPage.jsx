@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Expand } from "lucide-react";
 import EditorRender from "../components/editor/EditorRender";
 import LandingPage from "./LandingPage";
+import StyleEditorModal from "../components/editor/StyleEditorModal";
 
 const DEFAULT_DATA = {
   title: "New Page",
@@ -50,7 +51,8 @@ export default function EditPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [viewMode, setViewMode] = useState('desktop'); 
+  const [viewMode, setViewMode] = useState('desktop');
+  const [styleModal, setStyleModal] = useState({ isOpen: false, fieldType: null });
 
   useEffect(() => {
     if (pageId && pageId !== 'new') {
@@ -147,77 +149,86 @@ export default function EditPage() {
 
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* LEFT: EDITOR */}
-      <div className="w-1/2 p-8 bg-white border-r border-gray-300 overflow-y-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-800">Editor</h1>
-          <button
-            onClick={() => navigate('/')}
-            className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 flex items-center gap-2"
-          >
-            <ArrowLeft size={16} />
-            Back to Dashboard
-          </button>
-        </div>
-        {error && (
-          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-            {error}
+    <div className="relative h-screen bg-gray-100">
+      <StyleEditorModal
+        isOpen={styleModal.isOpen}
+        onClose={() => setStyleModal({ isOpen: false, fieldType: null })}
+        fieldType={styleModal.fieldType}
+        styles={data[`${styleModal.fieldType}Styles`] || {}}
+        onUpdateStyles={(fieldType, newStyles) => setData((prev) => ({ ...prev, [`${fieldType}Styles`]: newStyles }))}
+      />
+      <div className="flex h-full">
+        {/* LEFT: EDITOR */}
+        <div className="w-1/2 p-8 bg-white border-r border-gray-300 overflow-y-auto">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold text-gray-800">Editor</h1>
+            <button
+              onClick={() => navigate('/')}
+              className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 flex items-center gap-2"
+            >
+              <ArrowLeft size={16} />
+              Back to Dashboard
+            </button>
           </div>
-        )}
-        <EditorRender data={data} setData={handleDataChange} />
-      </div>
+          {error && (
+            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+              {error}
+            </div>
+          )}
+          <EditorRender data={data} setData={handleDataChange} styleModal={styleModal} setStyleModal={setStyleModal} />
+        </div>
 
-      {/* RIGHT: PREVIEW */}
-      <div className="w-1/2 p-8 bg-gray-50 overflow-y-auto">
-        <div className="flex justify-between items-center mb-4">
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {saving ? 'Saving...' : 'Save'}
-          </button>
-          <h1 className="text-2xl font-bold text-gray-800">Live Preview</h1>
-          <button
-            onClick={() => navigate(`/view/${pageId}`)}
-            className="px-3 py-1 text-black rounded text-sm font-medium hover:bg-blue-200"
-            title="View Full Page"
-          >
-            <Expand size={16} />
-          </button>
-        </div>
-        <div className="flex justify-center mb-4">
-          <div className="flex space-x-2">
+        {/* RIGHT: PREVIEW */}
+        <div className="w-1/2 p-8 bg-gray-50 overflow-y-auto">
+          <div className="flex justify-between items-center mb-4">
             <button
-              onClick={() => setViewMode('desktop')}
-              className={`px-3 py-1 rounded text-sm font-medium ${
-                viewMode === 'desktop'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
+              onClick={handleSave}
+              disabled={saving}
+              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Desktop
+              {saving ? 'Saving...' : 'Save'}
             </button>
+            <h1 className="text-2xl font-bold text-gray-800">Live Preview</h1>
             <button
-              onClick={() => setViewMode('mobile')}
-              className={`px-3 py-1 rounded text-sm font-medium ${
-                viewMode === 'mobile'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
+              onClick={() => navigate(`/view/${pageId}`)}
+              className="px-3 py-1 text-black rounded text-sm font-medium hover:bg-blue-200"
+              title="View Full Page"
             >
-              Mobile
+              <Expand size={16} />
             </button>
           </div>
-        </div>
-        <div
-          className={`bg-white rounded-lg shadow-lg overflow-hidden ${
-            viewMode === 'mobile' ? 'max-w-sm w-80 mx-auto' : ''
-          }`}
-        >
-          <div style={viewMode === 'mobile' ? { transform: 'scale(0.8)', transformOrigin: 'top center' } : {}}>
-            <LandingPage data={data} viewMode={viewMode} />
+          <div className="flex justify-center mb-4">
+            <div className="flex space-x-2">
+              <button
+                onClick={() => setViewMode('desktop')}
+                className={`px-3 py-1 rounded text-sm font-medium ${
+                  viewMode === 'desktop'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                Desktop
+              </button>
+              <button
+                onClick={() => setViewMode('mobile')}
+                className={`px-3 py-1 rounded text-sm font-medium ${
+                  viewMode === 'mobile'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                Mobile
+              </button>
+            </div>
+          </div>
+          <div
+            className={`bg-white rounded-lg shadow-lg overflow-hidden ${
+              viewMode === 'mobile' ? 'max-w-sm w-80 mx-auto' : ''
+            }`}
+          >
+            <div style={viewMode === 'mobile' ? { transform: 'scale(0.8)', transformOrigin: 'top center' } : {}}>
+              <LandingPage data={data} viewMode={viewMode} />
+            </div>
           </div>
         </div>
       </div>

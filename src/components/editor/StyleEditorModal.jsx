@@ -262,34 +262,39 @@ export default function StyleEditorModal({ isOpen, onClose, fieldType, styles, o
   );
 
   return (
-    <div className={`fixed inset-y-0 left-0 z-50 w-80 bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-      <div className="flex flex-col h-full">
-        <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-xl font-bold text-gray-800">
-            {fieldType === "title" ? " Page Title Styles" : "Hero Image Styles"}
-          </h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-            <X size={24} />
-          </button>
-        </div>
-        <div className="flex-1 p-6 overflow-y-auto">
-          {fieldType === "title" ? renderTextStyles() : renderImageStyles()}
-        </div>
-        <div className="flex justify-end gap-3 p-6 border-t bg-gray-50">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-gray-600 hover:text-gray-800"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            Apply
-          </button>
+    <>
+      {isOpen && (
+        <div className="fixed inset-0" onClick={onClose}></div>
+      )}
+      <div className={`fixed inset-y-0 left-0 z-50 w-80 bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="flex flex-col h-full">
+          <div className="flex justify-between items-center p-6 border-b">
+            <h2 className="text-xl font-bold text-gray-800">
+              {fieldType === "title" ? " Page Title Styles" : "Hero Image Styles"}
+            </h2>
+            <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+              <X size={24} />
+            </button>
+          </div>
+          <div className="flex-1 p-6 overflow-y-auto">
+            {fieldType === "title" ? renderTextStyles() : renderImageStyles()}
+          </div>
+          <div className="flex justify-end gap-3 p-6 border-t bg-gray-50">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 text-gray-600 hover:text-gray-800"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Apply
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
