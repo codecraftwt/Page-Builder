@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Pencil } from "lucide-react";
-import LandingPage from "./LandingPage";
+import Homepage from "./Homepage";
 
 const API_BASE_URL = 'http://localhost:5000/api';
 
@@ -106,7 +106,7 @@ export default function ViewPage() {
         }`}
       >
         <div style={viewMode === 'mobile' ? { transform: 'scale(0.8)', transformOrigin: 'top center' } : {}}>
-          <LandingPage data={data} viewMode={viewMode} />
+          <Homepage data={data} viewMode={viewMode} />
         </div>
       </div>
     </div>

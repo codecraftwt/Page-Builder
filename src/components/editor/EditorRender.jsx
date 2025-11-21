@@ -1,6 +1,12 @@
 import { useState } from "react";
-import { Plus, Settings, AlignLeft, AlignCenter, AlignRight, AlignJustify } from "lucide-react";
+import { useSelector, useDispatch } from "react-redux";
+import { Settings, AlignLeft, AlignCenter, AlignRight, AlignJustify, Trash, ChevronDown, ChevronUp } from "lucide-react";
+import { updatePageData, removeSection } from "../../store/slices/editorSlice";
 import StyleEditorModal from './StyleEditorModal';
+import AddSectionModal from './AddSectionModal';
+import ImageUploader from './ImageUploader';
+
+
 
 const Input = ({ label, value, onChange, type = "text", placeholder, max }) => (
   <div className="mb-4">
@@ -130,23 +136,6 @@ const Select = ({ label, value, onChange, options }) => (
   </div>
 );
 
-const Section = ({ title, children, defaultOpen = false }) => {
-  const [open, setOpen] = useState(defaultOpen);
-  return (
-    <div className="border border-gray-200 rounded-md mb-4 overflow-hidden">
-      <button
-        onClick={() => setOpen(!open)}
-        className="w-full px-4 py-2 bg-gray-50 hover:bg-gray-100 text-left font-medium flex justify-between items-center transition"
-      >
-        {title}
-        <span className={`transform transition-transform duration-200 ${open ? 'rotate-45' : ''}`}>
-          <Plus size={18} />
-        </span>
-      </button>
-      {open && <div className="p-4 bg-white">{children}</div>}
-    </div>
-  );
-};
 
 const ListItem = ({ item, onUpdate, onRemove, fields }) => (
   <div className="p-3 border rounded-md bg-gray-50 mb-3">
@@ -169,36 +158,9 @@ const ListItem = ({ item, onUpdate, onRemove, fields }) => (
   </div>
 );
 
-export default function EditorRender({ data, setData, styleModal, setStyleModal }) {
-
-  const update = (key, value) =>
-    setData((prev) => ({ ...prev, [key]: value }));
-
-  const updateNested = (key, index, field, value) => {
-    const list = [...(data[key] || [])];
-    list[index][field] = value;
-    update(key, list);
-  };
-
-  const addItem = (key, template) =>
-    update(key, [...(data[key] || []), template]);
-
-  const removeItem = (key, index) =>
-    update(key, data[key].filter((_, i) => i !== index));
-
-  const openStyleModal = (fieldType) => {
-    setStyleModal({ isOpen: true, fieldType });
-  };
-
-  const closeStyleModal = () => {
-    setStyleModal({ isOpen: false, fieldType: null });
-  };
-
-  const updateStyles = (fieldType, newStyles) => {
-    update(`${fieldType}Styles`, newStyles);
-  };
-
-
+export default function EditorRender({ styleModal, setStyleModal }) {
+  const dispatch = useDispatch();
+  const data = useSelector((state) => state.editor.pageData);
 
   const fontOptions = [
     { value: "Arial, sans-serif", label: "Arial" },
@@ -216,9 +178,9 @@ export default function EditorRender({ data, setData, styleModal, setStyleModal 
     { value: "justify", label: "Justify", icon: AlignJustify },
   ];
 
-  return (
-    <div className={`max-w-2xl mx-auto p-4 space-y-6 font-sans`}>
-      <Section title="Basic Content" defaultOpen={true}>
+  const sections = [
+    { id: "basic", title: "Basic Content", defaultOpen: true, content: (
+      <>
         <div className="flex items-center justify-between mb-2">
           <label className="block text-sm font-medium text-gray-700">Page Title</label>
           <button
@@ -296,9 +258,11 @@ export default function EditorRender({ data, setData, styleModal, setStyleModal 
           </button>
         </div>
         <Input label="" value={data.phone || ""} onChange={(v) => update("phone", v)} />
-        <div className="mb-4">
-          <div className="flex items-center justify-between mb-1">
-            <label className="block text-sm font-medium text-gray-700">Hero Image</label>
+        <ImageUploader
+          label="Hero Image"
+          value={data.heroImage}
+          onChange={(url) => update("heroImage", url)}
+          styleButton={
             <button
               onClick={() => openStyleModal("heroImage")}
               className="p-1 text-gray-500 hover:text-blue-600 transition"
@@ -306,24 +270,12 @@ export default function EditorRender({ data, setData, styleModal, setStyleModal 
             >
               <Settings size={16} />
             </button>
-          </div>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => {
-              const file = e.target.files[0];
-              if (file) {
-                const reader = new FileReader();
-                reader.onload = () => update("heroImage", reader.result);
-                reader.readAsDataURL(file);
-              }
-            }}
-            className="block w-full text-sm text-gray-500 file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-sm file:bg-blue-50 file:text-blue-700"
-          />
-        </div>
-      </Section>
-
-      <Section title="Design & Styling" defaultOpen={true}>
+          }
+        />
+      </>
+    )},
+    { id: "design", title: "Design & Styling", defaultOpen: true, content: (
+      <>
         <Select label="Font Family" value={data.fontFamily || "Arial, sans-serif"} onChange={(v) => update("fontFamily", v)} options={fontOptions} />
         <div className="grid grid-cols-2 gap-3">
           <ColorInput label="Primary" value={data.colors?.primary || "#3b82f6"} onChange={(v) => update("colors", { ...data.colors, primary: v })} />
@@ -409,9 +361,10 @@ export default function EditorRender({ data, setData, styleModal, setStyleModal 
             </div>
           )}
         </div>
-      </Section>
-
-      <Section title="Features">
+      </>
+    )},
+    { id: "features", title: "Features", content: (
+      <>
         {(data.features || []).map((f, i) => (
           <ListItem
             key={i}
@@ -427,9 +380,10 @@ export default function EditorRender({ data, setData, styleModal, setStyleModal 
         <button onClick={() => addItem("features", { title: "", description: "" })} className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
           + Add Feature
         </button>
-      </Section>
-
-      <Section title="Testimonials">
+      </>
+    )},
+    { id: "testimonials", title: "Testimonials", content: (
+      <>
         {(data.testimonials || []).map((t, i) => (
           <ListItem
             key={i}
@@ -446,9 +400,49 @@ export default function EditorRender({ data, setData, styleModal, setStyleModal 
         <button onClick={() => addItem("testimonials", { name: "", role: "", comment: "" })} className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
           + Add Testimonial
         </button>
-      </Section>
-
-      {/* <Section title="FAQ">
+      </>
+    )},
+    { id: "about", title: "About Us", content: (
+      <>
+        <Input label="About Title" value={data.aboutTitle} onChange={(v) => update("aboutTitle", v)} />
+        <Input label="About Description" value={data.aboutDescription} onChange={(v) => update("aboutDescription", v)} type="textarea" />
+        <Input label="Mission Statement" value={data.mission} onChange={(v) => update("mission", v)} type="textarea" />
+        <Input label="Vision Statement" value={data.vision} onChange={(v) => update("vision", v)} type="textarea" />
+      </>
+    )},
+    { id: "contact", title: "Contact", content: (
+      <>
+        <Input label="Contact Title" value={data.contactTitle} onChange={(v) => update("contactTitle", v)} />
+        <Input label="Address" value={data.address} onChange={(v) => update("address", v)} type="textarea" />
+        <Input label="Phone" value={data.contactPhone} onChange={(v) => update("contactPhone", v)} />
+        <Input label="Email" value={data.contactEmail} onChange={(v) => update("contactEmail", v)} type="email" />
+        <Input label="LinkedIn" value={data.linkedin} onChange={(v) => update("linkedin", v)} />
+        <Input label="Twitter" value={data.twitter} onChange={(v) => update("twitter", v)} />
+        <Input label="GitHub" value={data.github} onChange={(v) => update("github", v)} />
+      </>
+    )},
+    { id: "gallery", title: "Gallery", content: (
+      <>
+        {(data.gallery || []).map((g, i) => (
+          <ListItem
+            key={i}
+            item={g}
+            onUpdate={(field, v) => updateNested("gallery", i, field, v)}
+            onRemove={() => removeItem("gallery", i)}
+            fields={[
+              { key: "title", label: "Image Title" },
+              { key: "description", label: "Description" },
+              { key: "url", label: "Image URL" },
+            ]}
+          />
+        ))}
+        <button onClick={() => addItem("gallery", { title: "", description: "", url: "" })} className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+          + Add Gallery Item
+        </button>
+      </>
+    )},
+    { id: "faq", title: "FAQ", content: (
+      <>
         {(data.faq || []).map((q, i) => (
           <ListItem
             key={i}
@@ -464,13 +458,145 @@ export default function EditorRender({ data, setData, styleModal, setStyleModal 
         <button onClick={() => addItem("faq", { question: "", answer: "" })} className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
           + Add FAQ
         </button>
-      </Section>
+      </>
+    )},
+    { id: "pricing", title: "Pricing", content: (
+      <>
+        {(data.pricing || []).map((p, i) => (
+          <ListItem
+            key={i}
+            item={p}
+            onUpdate={(field, v) => updateNested("pricing", i, field, v)}
+            onRemove={() => removeItem("pricing", i)}
+            fields={[
+              { key: "plan", label: "Plan Name" },
+              { key: "price", label: "Price" },
+              { key: "features", label: "Features (comma separated)", type: "textarea" },
+            ]}
+          />
+        ))}
+        <button onClick={() => addItem("pricing", { plan: "", price: "", features: "" })} className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+          + Add Pricing Plan
+        </button>
+      </>
+    )},
+  ];
 
-      <Section title="Social Links">
-        <Input label="LinkedIn" value={data.socialLinks?.linkedin || ""} onChange={(v) => update("socialLinks", { ...data.socialLinks, linkedin: v })} />
-        <Input label="Twitter" value={data.socialLinks?.twitter || ""} onChange={(v) => update("socialLinks", { ...data.socialLinks, twitter: v })} />
-        <Input label="GitHub" value={data.socialLinks?.github || ""} onChange={(v) => update("socialLinks", { ...data.socialLinks, github: v })} />
-      </Section> */}
-    </div>
+  const [collapsedSections, setCollapsedSections] = useState(() => {
+    const initial = {};
+    sections.forEach(section => {
+      initial[section.id] = !section.defaultOpen;
+    });
+    return initial;
+  });
+
+  const toggleSection = (sectionId) => {
+    setCollapsedSections(prev => ({
+      ...prev,
+      [sectionId]: !prev[sectionId]
+    }));
+  };
+
+  const update = (key, value) => {
+    dispatch(updatePageData({ [key]: value }));
+  };
+
+  const updateNested = (key, index, field, value) => {
+    const list = [...(data[key] || [])];
+    list[index][field] = value;
+    dispatch(updatePageData({ [key]: list }));
+  };
+
+  const addItem = (key, template) =>
+    update(key, [...(data[key] || []), template]);
+
+  const removeItem = (key, index) =>
+    update(key, data[key].filter((_, i) => i !== index));
+
+  const openStyleModal = (fieldType) => {
+    setStyleModal({ isOpen: true, fieldType });
+  };
+
+  const closeStyleModal = () => {
+    setStyleModal({ isOpen: false, fieldType: null });
+  };
+
+  const updateStyles = (fieldType, newStyles) => {
+    update(`${fieldType}Styles`, newStyles);
+  };
+
+  const handleRemoveSection = (sectionId) => {
+    dispatch(removeSection(sectionId));
+  };
+
+  const [showAddModal, setShowAddModal] = useState(false);
+
+  const availableSections = [
+    { id: "basic", title: "Basic Content", description: "Add title, description, contact info, and hero image" },
+    { id: "design", title: "Design & Styling", description: "Customize colors, fonts, and layout" },
+    { id: "features", title: "Features", description: "Highlight key features and benefits" },
+    { id: "testimonials", title: "Testimonials", description: "Add customer testimonials and reviews" },
+    { id: "about", title: "About Us", description: "Add information about your company or yourself" },
+    { id: "contact", title: "Contact", description: "Add contact details and information" },
+    { id: "gallery", title: "Gallery", description: "Showcase images or media" },
+    { id: "faq", title: "FAQ", description: "Frequently asked questions" },
+    { id: "pricing", title: "Pricing", description: "Display pricing plans and options" },
+  ];
+
+  const addSection = (sectionId) => {
+    const currentOrder = data.sectionOrder || [];
+        if (!currentOrder.includes(sectionId)) {
+      update("sectionOrder", [...currentOrder, sectionId]);
+    }
+    setShowAddModal(false);
+  };
+
+  const orderedSections = (data.sectionOrder || [])
+  .map(id => sections.find(s => s.id === id))
+  .filter(Boolean);
+
+  return (
+    <>
+      <div className={`max-w-2xl mx-auto p-4 space-y-6 font-sans`}>
+        {orderedSections.map((section) => (
+          <div key={section.id} className="bg-white border rounded-lg shadow-sm mb-4">
+            <div className="flex items-center justify-between p-4 bg-gray-50 border-b">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => toggleSection(section.id)}
+                  className="p-1 text-gray-500 hover:text-gray-700 transition"
+                  title={collapsedSections[section.id] ? "Expand Section" : "Collapse Section"}
+                >
+                  {collapsedSections[section.id] ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+                </button>
+                <h3 className="font-medium text-gray-900">{section.title}</h3>
+              </div>
+              <button
+                onClick={() => handleRemoveSection(section.id)}
+                className="p-1 text-red-500 hover:text-red-700 transition"
+                title="Remove Section"
+              >
+                <Trash size={16} />
+              </button>
+            </div>
+            {!collapsedSections[section.id] && (
+              <div className="p-4">
+                {section.content}
+              </div>
+            )}
+          </div>
+        ))}
+        <button onClick={() => setShowAddModal(true)} className="w-full py-2 bg-green-600 text-white rounded hover:bg-green-700">
+          + Add Section
+        </button>
+      </div>
+      <AddSectionModal
+        showAddModal={showAddModal}
+        setShowAddModal={setShowAddModal}
+        availableSections={availableSections}
+        addSection={addSection}
+        sectionOrder={data.sectionOrder || []}
+      />
+    </>
   );
 }

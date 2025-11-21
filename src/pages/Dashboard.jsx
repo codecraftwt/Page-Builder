@@ -1,20 +1,19 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 import { Eye, Pencil, MoreHorizontal, Plus, Edit2, Trash2 } from 'lucide-react';
-
-const API_BASE_URL = 'http://localhost:5000/api';
+import { fetchPages, deletePage, renamePage, clearError } from '../store/slices/pagesSlice';
 
 export default function Dashboard() {
-  const [pages, setPages] = useState([]); 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const dispatch = useDispatch();
+  const { pages, loading, error } = useSelector(state => state.pages);
   const [dropdownOpen, setDropdownOpen] = useState(null);
   const [renamingPage, setRenamingPage] = useState(null);
   const [newTitle, setNewTitle] = useState('');
   const dropdownRef = useRef(null);
 
   useEffect(() => {
-    fetchPages();
+    dispatch(fetchPages());
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setDropdownOpen(null);
@@ -22,55 +21,9 @@ export default function Dashboard() {
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [dispatch]);
 
-  const fetchPages = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`${API_BASE_URL}/pages`);
-      if (!response.ok) throw new Error('Failed to fetch pages');
-      const result = await response.json();
-      setPages(result.data || []);
-      setError(null);
-    } catch (err) {
-      console.error('Error fetching pages:', err);
-      setError('Failed to load pages. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  const handleDelete = async (pageId) => {
-    if (!window.confirm('Are you sure you want to delete this page?')) return;
-    try {
-      const response = await fetch(`${API_BASE_URL}/page/${pageId}`, { method: 'DELETE' });
-      if (!response.ok) throw new Error('Failed to delete page');
-      setPages(pages.filter(p => p.pageId !== pageId));
-      setDropdownOpen(null);
-    } catch (err) {
-      alert('Failed to delete page. Please try again.');
-    }
-  };
-
-  const handleRename = async (pageId) => {
-    if (!newTitle.trim()) return;
-    try {
-      const page = pages.find(p => p.pageId === pageId);
-      const response = await fetch(`${API_BASE_URL}/page/${pageId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...page, title: newTitle }),
-      });
-      if (!response.ok) throw new Error('Failed to rename page');
-      const updatedPage = await response.json();
-      setPages(pages.map(p => p.pageId === pageId ? updatedPage.data : p));
-      setRenamingPage(null);
-      setNewTitle('');
-      setDropdownOpen(null);
-    } catch (err) {
-      alert('Failed to rename page. Please try again.');
-    }
-  };
 
   const toggleDropdown = (pageId) => {
     setDropdownOpen(dropdownOpen === pageId ? null : pageId);
@@ -99,7 +52,10 @@ export default function Dashboard() {
         <div className="text-center">
           <p className="text-red-600 mb-4">{error}</p>
           <button
-            onClick={fetchPages}
+            onClick={() => {
+              dispatch(clearError());
+              dispatch(fetchPages());
+            }}
             className="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
           >
             Retry
@@ -164,12 +120,12 @@ export default function Dashboard() {
                         type="text"
                         value={newTitle}
                         onChange={(e) => setNewTitle(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && handleRename(page.pageId)}
+                        onKeyPress={(e) => e.key === 'Enter' && dispatch(renamePage({ pageId: page.pageId, newTitle: newTitle || page.title }))}
                         className="flex-1 px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                         autoFocus
                       />
                       <button
-                        onClick={() => handleRename(page.pageId)}
+                        onClick={() => dispatch(renamePage({ pageId: page.pageId, newTitle: newTitle || page.title }))}
                         className="px-3 py-1.5 bg-green-600 text-white rounded-md text-sm hover:bg-green-700 transition"
                       >
                         Save
@@ -228,7 +184,7 @@ export default function Dashboard() {
                               Rename
                             </button>
                             <button
-                              onClick={() => handleDelete(page.pageId)}
+                              onClick={() => dispatch(deletePage(page.pageId))}
                               className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition"
                             >
                               <Trash2 size={14} />
