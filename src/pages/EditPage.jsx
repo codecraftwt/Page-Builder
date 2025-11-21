@@ -1,9 +1,15 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { ArrowLeft, Expand } from "lucide-react";
+import StyleEditorModal from "../components/editor/StyleEditorModal";
+import { updatePageData, setPageData } from "../store/slices/editorSlice";
+
 import EditorRender from "../components/editor/EditorRender";
 import LandingPage from "./LandingPage";
-import StyleEditorModal from "../components/editor/StyleEditorModal";
+import Homepage from "./Homepage";
+// import EditorRender1 from "../components/editor/EditorRender1";
+// import LandingPage1 from "./Landingpage1";
 
 const DEFAULT_DATA = {
   pageId: "",
@@ -15,6 +21,7 @@ const DEFAULT_DATA = {
   email: "",
   phone: "",
   heroImage: "",
+  sectionOrder: ["basic", "design", "features", "testimonials", "about", "contact", "gallery", "faq", "pricing"],
   fontFamily: "",
   colors: {
     primary: "#3b82f6",
@@ -133,6 +140,19 @@ const DEFAULT_DATA = {
     twitter: "",
     github: ""
   },
+  aboutTitle: "",
+  aboutDescription: "",
+  mission: "",
+  vision: "",
+  contactTitle: "",
+  address: "",
+  contactPhone: "",
+  contactEmail: "",
+  linkedin: "",
+  twitter: "",
+  github: "",
+  gallery: [],
+  pricing: [],
   createdAt: new Date(),
   updatedAt: new Date()
 };
@@ -142,18 +162,23 @@ const API_BASE_URL = 'http://localhost:5000/api';
 export default function EditPage() {
   const { pageId } = useParams();
   const navigate = useNavigate();
-  const [data, setData] = useState(DEFAULT_DATA);
+  const dispatch = useDispatch();
+  const pageData = useSelector((state) => state.editor.pageData);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
   const [viewMode, setViewMode] = useState('desktop');
   const [styleModal, setStyleModal] = useState({ isOpen: false, fieldType: null });
+  const [openSections, setOpenSections] = useState([]);
+  const [focusTarget, setFocusTarget] = useState(null);
+
+  const data = pageData || DEFAULT_DATA;
 
   useEffect(() => {
     if (pageId && pageId !== 'new') {
       fetchPageData();
     } else {
-      setData(DEFAULT_DATA);
+      dispatch(setPageData(DEFAULT_DATA));
       setLoading(false);
     }
   }, [pageId]);
@@ -167,22 +192,24 @@ export default function EditPage() {
       }
       const result = await response.json();
       if (result.data) {
-        setData({ ...DEFAULT_DATA, ...result.data });
+        const pageData = { ...DEFAULT_DATA, ...result.data };
+        dispatch(setPageData(pageData));
       } else {
-        setData(DEFAULT_DATA);
+        dispatch(setPageData(DEFAULT_DATA));
       }
       setError(null);
     } catch (err) {
       console.error('Error fetching page data:', err);
       setError('Failed to load page data. Using default data.');
-      setData(DEFAULT_DATA);
+      dispatch(setPageData(DEFAULT_DATA));
     } finally {
       setLoading(false);
     }
   };
 
   const handleDataChange = (newData) => {
-    setData(newData);
+    const updatedData = typeof newData === 'function' ? newData(data) : newData;
+    dispatch(setPageData(updatedData));
   };
 
   const handleSave = async () => {
@@ -215,7 +242,7 @@ export default function EditPage() {
       }
 
       const savedData = await response.json();
-      setData(savedData.data);
+      dispatch(setPageData({ ...data, ...savedData.data }));
       setError(null);
 
       // Navigate to dashboard after save
@@ -230,6 +257,12 @@ export default function EditPage() {
 
   const toggleViewMode = () => {
     setViewMode(viewMode === 'desktop' ? 'mobile' : 'desktop');
+  };
+
+  const handleElementClick = (target) => {
+    // target: { section: 'hero', field: 'title' } or { section: 'features', index: 0, field: 'title' }
+    setOpenSections(prev => prev.includes(target.section) ? prev : [...prev, target.section]);
+    setFocusTarget(target);
   };
 
   if (loading) {
@@ -248,7 +281,7 @@ export default function EditPage() {
         onClose={() => setStyleModal({ isOpen: false, fieldType: null })}
         fieldType={styleModal.fieldType}
         styles={data[`${styleModal.fieldType}Styles`] || {}}
-        onUpdateStyles={(fieldType, newStyles) => setData((prev) => ({ ...prev, [`${fieldType}Styles`]: newStyles }))}
+        onUpdateStyles={(fieldType, newStyles) => dispatch(updatePageData({ [`${fieldType}Styles`]: newStyles }))}
       />
       <div className="flex h-full">
         {/* LEFT: EDITOR */}
@@ -269,6 +302,7 @@ export default function EditPage() {
             </div>
           )}
           <EditorRender data={data} setData={handleDataChange} styleModal={styleModal} setStyleModal={setStyleModal} />
+          {/* <EditorRender1 data={data} setData={handleDataChange} styleModal={styleModal} setStyleModal={setStyleModal} /> */}
         </div>
 
         {/* RIGHT: PREVIEW */}
@@ -320,7 +354,9 @@ export default function EditPage() {
             }`}
           >
             <div style={viewMode === 'mobile' ? { transform: 'scale(0.8)', transformOrigin: 'top center' } : {}}>
-              <LandingPage data={data} viewMode={viewMode} />
+             
+              {/* <LandingPage data={data} viewMode={viewMode} /> */}
+              <Homepage data={data} viewMode={viewMode} />
             </div>
           </div>
         </div>
